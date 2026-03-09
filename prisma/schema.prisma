@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  quizAttempts  QuizAttempt[]
+  streaks       Streak[]
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  questions   Question[]
+  createdAt   DateTime   @default(now())
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  text        String
+  optionA     String
+  optionB     String
+  optionC     String
+  optionD     String
+  optionE     String
+  answer      String
+  explanation String?
+  difficulty  String   @default("medium")
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model QuizAttempt {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  categoryId String
+  score      Int
+  total      Int
+  answers    Json
+  createdAt  DateTime @default(now())
+}
+
+model Streak {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  current   Int      @default(0)
+  longest   Int      @default(0)
+  lastDate  DateTime?
+  updatedAt DateTime @updatedAt
+}
