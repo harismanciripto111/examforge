@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
@@ -15,7 +15,7 @@ interface Question {
   categoryId: string
 }
 
-export default function QuizPage() {
+function QuizContent() {
   const searchParams = useSearchParams()
   const category = searchParams.get('category') || ''
   const [questions, setQuestions] = useState<Question[]>([])
@@ -53,7 +53,7 @@ export default function QuizPage() {
   if (submitted && result) return (
     <div className="max-w-xl mx-auto text-center py-12">
       <div className="bg-white rounded-2xl shadow p-8">
-        <div className="text-5xl mb-4">{result.score / result.total >= 0.7 ? '\uD83C\uDFC6' : '\uD83D\uDCDA'}</div>
+        <div className="text-5xl mb-4">{result.score / result.total >= 0.7 ? '\u{1F3C6}' : '\u{1F4DA}'}</div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Hasil Latihan</h2>
         <p className="text-4xl font-bold text-indigo-600 mb-2">{result.score}/{result.total}</p>
         <p className="text-gray-500 mb-6">{Math.round((result.score / result.total) * 100)}% benar</p>
@@ -108,5 +108,13 @@ export default function QuizPage() {
         </button>
       </div>
     </div>
+  )
+}
+
+export default function QuizPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-12"><p className="text-gray-500">Memuat...</p></div>}>
+      <QuizContent />
+    </Suspense>
   )
 }
