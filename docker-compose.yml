@@ -1,34 +1,12 @@
 version: '3.8'
+
 services:
-  db:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: examforge
-    ports:
-      - '5432:5432'
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
+    build: .
     ports:
-      - '55555:3000'
+      - "55555:55555"
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: "postgresql://postgres:postgres@db:5432/examforge"
-      NEXTAUTH_SECRET: "supersecretkey1234567890abcdefgh"
-      NEXTAUTH_URL: "http://localhost:55555"
-    depends_on:
-      db:
-        condition: service_healthy
-volumes:
-  pgdata:
+      - PORT=55555
+    restart: unless-stopped
