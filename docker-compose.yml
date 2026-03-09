@@ -22,11 +22,11 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - '3000:3000'
+      - '55555:3000'
     environment:
       DATABASE_URL: "postgresql://postgres:postgres@db:5432/examforge"
       NEXTAUTH_SECRET: "supersecretkey1234567890abcdefgh"
-      NEXTAUTH_URL: "http://localhost:3000"
+      NEXTAUTH_URL: "http://localhost:55555"
     depends_on:
       db:
         condition: service_healthy
