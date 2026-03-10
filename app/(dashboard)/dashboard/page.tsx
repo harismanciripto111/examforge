@@ -43,7 +43,7 @@ export default async function DashboardPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Halo, {session.user?.name?.split(' ')[0]} \u{1F44B}
+            Halo, {session.user?.name?.split(' ')[0]} 👋
           </h1>
           <p className="text-gray-500 mt-1">Selamat datang di ExamForge!</p>
         </div>
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
           <p className="text-sm text-gray-500 mt-1">Rata-rata Skor</p>
         </div>
         <div className="bg-white rounded-xl p-5 shadow text-center">
-          <p className="text-3xl font-bold text-indigo-600">{data?.streak?.current ?? 0} \u{1F525}</p>
+          <p className="text-3xl font-bold text-indigo-600">{data?.streak?.current ?? 0} 🔥</p>
           <p className="text-sm text-gray-500 mt-1">Streak Hari Ini</p>
         </div>
       </div>
@@ -117,7 +117,7 @@ export default async function DashboardPage() {
                 )
               })}
               {data.streak.longest > 0 && (
-                <p className="text-xs text-gray-400 mt-2">Streak terpanjang: {data.streak.longest} hari \u{1F3C6}</p>
+                <p className="text-xs text-gray-400 mt-2">Streak terpanjang: {data.streak.longest} hari 🏆</p>
               )}
             </div>
           )}
