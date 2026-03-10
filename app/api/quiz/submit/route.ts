@@ -1,27 +1,42 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { prisma } from '@/lib/prisma'
+
 export async function POST(req: Request) {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { categorySlug, answers } = await req.json()
+
   const user = await prisma.user.findUnique({ where: { email: session.user.email } })
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+
   const category = await prisma.category.findUnique({ where: { slug: categorySlug } })
   if (!category) return NextResponse.json({ error: 'Category not found' }, { status: 404 })
+
   const questionIds = Object.keys(answers)
   const questions = await prisma.question.findMany({ where: { id: { in: questionIds } } })
+
   let score = 0
-  const results: Record<string, { correct: boolean; correctAnswer: string }> = {}
+  const results: Record<string, { correct: boolean; correctAnswer: string; explanation: string | null; userAnswer: string }> = {}
+
   for (const q of questions) {
     const isCorrect = answers[q.id] === q.answer
     if (isCorrect) score++
-    results[q.id] = { correct: isCorrect, correctAnswer: q.answer }
+    results[q.id] = {
+      correct: isCorrect,
+      correctAnswer: q.answer,
+      explanation: q.explanation ?? null,
+      userAnswer: answers[q.id] ?? '',
+    }
   }
+
   const attempt = await prisma.quizAttempt.create({
     data: { userId: user.id, categoryId: category.id, score, total: questions.length, answers },
   })
+
+  // Update streak
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const streak = await prisma.streak.findUnique({ where: { userId: user.id } })
@@ -37,5 +52,22 @@ export async function POST(req: Request) {
       data: { current: newCurrent, longest: Math.max(newCurrent, streak.longest), lastDate: today },
     })
   }
-  return NextResponse.json({ attemptId: attempt.id, score, total: questions.length, results })
+
+  return NextResponse.json({
+    attemptId: attempt.id,
+    score,
+    total: questions.length,
+    results,
+    questions: questions.map(q => ({
+      id: q.id,
+      text: q.text,
+      optionA: q.optionA,
+      optionB: q.optionB,
+      optionC: q.optionC,
+      optionD: q.optionD,
+      optionE: q.optionE,
+      answer: q.answer,
+      explanation: q.explanation ?? null,
+    })),
+  })
 }
