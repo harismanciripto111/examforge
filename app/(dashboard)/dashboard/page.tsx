@@ -1,9 +1,10 @@
 import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user?.email) redirect('/login')
 
   return (
@@ -11,7 +12,7 @@ export default async function DashboardPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Halo, {session.user?.name?.split(' ')[0]} \uD83D\uDC4B
+            Halo, {session.user?.name?.split(' ')[0]} 👋
           </h1>
           <p className="text-gray-500 mt-1">Selamat datang di ExamForge!</p>
         </div>
